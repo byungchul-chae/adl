@@ -12,7 +12,7 @@ from tqdm import tqdm
 
 # llama2 모델과 토크나이저 불러오기
 # GPT-2 모델과 토크나이저 불러오기
-model_name = "gpt2"
+model_name = "facebook/opt-6.7b"
 model = AutoModelForCausalLM.from_pretrained(model_name)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
