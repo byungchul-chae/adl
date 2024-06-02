@@ -1,7 +1,8 @@
 from huggingface_hub import login
 
 # Hugging Face에 로그인
-login(token="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")
+login(token="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")
+
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
@@ -10,8 +11,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import spearmanr
 from tqdm import tqdm
 
-# llama2 모델과 토크나이저 불러오기
-# GPT-2 모델과 토크나이저 불러오기
+# OPT 모델과 토크나이저 불러오기
 model_name = "facebook/opt-6.7b"
 model = AutoModelForCausalLM.from_pretrained(model_name)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -94,6 +94,17 @@ for name, output in tqdm(layer_outputs.items(), desc="Layer-wise Importance"):
         correlation, _ = spearmanr(output.view(-1)[:min_size].cpu().numpy(), outputs.logits.view(-1)[:min_size].cpu().numpy())
         layer_importance[name] = correlation
 
+# 상위 중요한 레이어 텍스트 출력
+def print_top_layers(importance_dict, title, top_n=20):
+    sorted_layers = sorted(importance_dict.items(), key=lambda item: item[1], reverse=True)
+    print(f"\nTop {top_n} {title} layers:")
+    for i, (name, importance) in enumerate(sorted_layers[:top_n]):
+        print(f"{i+1}: {name} with importance {importance}")
+
+print_top_layers(gradient_importance, "Gradient-based Importance")
+print_top_layers(sensitivity_importance_dict, "Sensitivity-based Importance")
+print_top_layers(layer_importance, "Layer-wise Importance")
+
 # 그래프 저장
 plt.figure(figsize=(12, 4))
 
@@ -113,5 +124,6 @@ plt.title("Layer-wise Importance")
 plt.xticks(rotation=90)
 
 plt.tight_layout()
-plt.savefig("gpt2_importance_analysis.png")  # 그래프를 PNG 파일로 저장
-print("Importance analysis completed. Graph saved as 'gpt2_importance_analysis.png'.")
+plt.savefig("opt_importance_analysis.png")  # 그래프를 PNG 파일로 저장
+print("Importance analysis completed. Graph saved as 'opt_importance_analysis.png'.")
+
